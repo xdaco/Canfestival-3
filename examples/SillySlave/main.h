@@ -51,11 +51,20 @@ void pause(void);
 /*
  * Please tune the following defines to suit your needs:
  */
+
+/*
 #define NODE_MASTER 0x1        
 #define NODE_SLAVE  0x40      
 #define DRIVER_LIBRARY "can_ixxat_win32.dll"
 #define BAUDRATE 125
 #define BUS 0
+*/
+#define NODE_MASTER 0x1
+#define NODE_SLAVE 0x40
+#define DRIVER_LIBRARY "libcanfestival_can_socket.so"
+#define BAUDRATE 500
+#define BUS 0
+
 
 #endif /* _MAIN_H */
 
