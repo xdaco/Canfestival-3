@@ -12,8 +12,6 @@ const indextable * SillySlave_scanIndexOD (UNS16 wIndex, UNS32 * errorCode, ODCa
 
 /* Master node data struct */
 extern CO_Data SillySlave_Data;
-extern ODCallback_t Server_SDO_Parameter_callbacks[];		/* Callbacks of index0x1200 */
-extern ODCallback_t Transmit_PDO_1_Parameter_callbacks[];		/* Callbacks of index0x1800 */
 extern UNS8 LifeSignal;		/* Mapped at index 0x2001, subindex 0x00*/
 
 #endif // SILLYSLAVE_H

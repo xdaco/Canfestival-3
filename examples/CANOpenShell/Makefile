@@ -34,42 +34,61 @@ PREFIX = /usr/local
 TARGET = unix
 CAN_DRIVER = can_virtual
 TIMERS_DRIVER = timers_unix
+CANOPENSHELL = CANOpenShell
 
 INCLUDES = -I../../include -I../../include/$(TARGET) -I../../include/$(CAN_DRIVER) -I../../include/$(TIMERS_DRIVER)
 
-SILLYSLAVE_OBJS = SillySlave.o slave.o main.o
+MASTER_OBJS = CANOpenShellMasterOD.o CANOpenShellSlaveOD.o CANOpenShell.o
 
-OBJS = $(SILLYSLAVE_OBJS) ../../src/libcanfestival.a ../../drivers/$(TARGET)/libcanfestival_$(TARGET).a
+OBJS = $(MASTER_OBJS) ../../src/libcanfestival.a ../../drivers/$(TARGET)/libcanfestival_$(TARGET).a
 
-all: SillySlave
+ifeq ($(TARGET),win32)
+	CANOPENSHELL = CANOpenShell.exe
+endif
+
+ifeq ($(TIMERS_DRIVER),timers_win32)
+	EXE_CFLAGS =
+endif
+
+ifeq ($(TIMERS_DRIVER),timers_xeno)
+	PROGDEFINES = -DUSE_XENO
+endif
+
+ifeq ($(TIMERS_DRIVER),timers_rtai)
+	PROGDEFINES = -DUSE_RTAI
+endif
+
+all: $(CANOPENSHELL)
 
 ../../drivers/$(TARGET)/libcanfestival_$(TARGET).a:
 	$(MAKE) -C ../../drivers/$(TARGET) libcanfestival_$(TARGET).a
 
-
-SillySlave: SillySlave.c $(OBJS)
+$(CANOPENSHELL): $(OBJS)
 	$(LD) $(CFLAGS) $(PROG_CFLAGS) ${PROGDEFINES} $(INCLUDES) -o $@ $(OBJS) $(EXE_CFLAGS)
-
+	mkdir -p Debug; cp $(CANOPENSHELL) Debug
 	
-SillySlave.c: SillySlave.od
+CANOpenShellMasterOD.c: CANOpenShellMasterOD.od
 	$(MAKE) -C ../../objdictgen gnosis
-	python ../../objdictgen/objdictgen.py SillySlave.od SillySlave.c
+	python ../../objdictgen/objdictgen.py CANOpenShellMasterOD.od CANOpenShellMasterOD.c
+
+CANOpenShellSlaveOD.c: CANOpenShellSlaveOD.od
+	$(MAKE) -C ../../objdictgen gnosis
+	python ../../objdictgen/objdictgen.py CANOpenShellSlaveOD.od CANOpenShellSlaveOD.c
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(PROG_CFLAGS) ${PROGDEFINES} $(INCLUDES) -o $@ -c $<
 
 clean:
-	rm -f $(SILLYSLAVE_OBJS)
-	rm -f SillySlave
-
+	rm -f $(MASTER_OBJS)
+	rm -f $(CANOPENSHELL)
+		
 mrproper: clean
-	rm -f SillySlave.c
-	
-install: SillySlave
+	rm -f CANOpenShellMasterOD.c
+	rm -f CANOpenShellSlaveOD.c
+
+install: $(CANOPENSHELL)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin/
 	cp $< $(DESTDIR)$(PREFIX)/bin/
 	
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/SillySlave
-
-
+	rm -f $(DESTDIR)$(PREFIX)/bin/$(CANOPENSHELL)

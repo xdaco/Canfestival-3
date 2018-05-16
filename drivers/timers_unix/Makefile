@@ -22,12 +22,9 @@
 # 
 
 CC = gcc
-CXX = g++
-LD = g++
 OPT_CFLAGS = -O2
 CFLAGS = $(OPT_CFLAGS)
 PROG_CFLAGS =  -fPIC
-EXE_CFLAGS =  -lpthread -lrt -ldl
 OS_NAME = Linux
 ARCH_NAME = x86_64
 PREFIX = /usr/local
@@ -37,39 +34,29 @@ TIMERS_DRIVER = timers_unix
 
 INCLUDES = -I../../include -I../../include/$(TARGET) -I../../include/$(CAN_DRIVER) -I../../include/$(TIMERS_DRIVER)
 
-SILLYSLAVE_OBJS = SillySlave.o slave.o main.o
+OBJS = $(TIMERS_DRIVER).o
 
-OBJS = $(SILLYSLAVE_OBJS) ../../src/libcanfestival.a ../../drivers/$(TARGET)/libcanfestival_$(TARGET).a
+SRC_HFILES = ../../include/$(TIMERS_DRIVER)/timerscfg.h
 
-all: SillySlave
+TARGET_HFILES = $(DESTDIR)$(PREFIX)/include/canfestival/timerscfg.h
 
-../../drivers/$(TARGET)/libcanfestival_$(TARGET).a:
-	$(MAKE) -C ../../drivers/$(TARGET) libcanfestival_$(TARGET).a
+all: driver
 
-
-SillySlave: SillySlave.c $(OBJS)
-	$(LD) $(CFLAGS) $(PROG_CFLAGS) ${PROGDEFINES} $(INCLUDES) -o $@ $(OBJS) $(EXE_CFLAGS)
-
-	
-SillySlave.c: SillySlave.od
-	$(MAKE) -C ../../objdictgen gnosis
-	python ../../objdictgen/objdictgen.py SillySlave.od SillySlave.c
+driver: $(OBJS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) $(PROG_CFLAGS) ${PROGDEFINES} $(INCLUDES) -o $@ -c $<
 
+install:
+	mkdir -p $(DESTDIR)$(PREFIX)/include/canfestival
+	cp $(SRC_HFILES) $(DESTDIR)$(PREFIX)/include/canfestival
+
+uninstall:
+	rm -f $(TARGET_HFILES)
+
 clean:
-	rm -f $(SILLYSLAVE_OBJS)
-	rm -f SillySlave
+	rm -f $(OBJS)
 
 mrproper: clean
-	rm -f SillySlave.c
-	
-install: SillySlave
-	mkdir -p $(DESTDIR)$(PREFIX)/bin/
-	cp $< $(DESTDIR)$(PREFIX)/bin/
-	
-uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/bin/SillySlave
 
 
