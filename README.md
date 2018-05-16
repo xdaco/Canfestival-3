@@ -18,7 +18,7 @@ This is a free Free CanOpen stack, cloned from https://github.com/nucleron/CanFe
 * Execute ```$ make``` to build
 * Execute ```$ make clean ``` to remove build files
 * To build SillySlave, go to examples/SillySlave
-* Edit the  ```Makefile``` using any text editor. Go to line 42 and remove  “-lcanlib” and save the file.
+* Edit the  ```Makefile``` using any text editor. Go to line 42 and remove  ```“-lcanlib”``` and save the file.
 * Execute ```$ make mrproper ```
 * Execute ```$ make ```. This will build the binary for SillySlave on Unix/Linux platform
 
